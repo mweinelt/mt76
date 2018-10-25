@@ -314,6 +314,7 @@ mt76x2_sta_remove(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 	int i;
 
 	mutex_lock(&dev->mutex);
+	mt76_tx_status_flush(&dev->mt76, &msta->wcid);
 	rcu_assign_pointer(dev->wcid[idx], NULL);
 	for (i = 0; i < ARRAY_SIZE(sta->txq); i++)
 		mt76_txq_remove(&dev->mt76, sta->txq[i]);

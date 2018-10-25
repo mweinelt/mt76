@@ -148,14 +148,15 @@ static int mt76x2_insert_hdr_pad(struct sk_buff *skb)
 	return 2;
 }
 
-int mt76x2_tx_prepare_skb(struct mt76_dev *mdev, void *txwi,
+int mt76x2_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
 			  struct sk_buff *skb, struct mt76_queue *q,
 			  struct mt76_wcid *wcid, struct ieee80211_sta *sta,
 			  u32 *tx_info)
 {
 	struct mt76x2_dev *dev = container_of(mdev, struct mt76x2_dev, mt76);
-	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
+	struct mt76x2_txwi *txwi = txwi_ptr;
 	int qsel = MT_QSEL_EDCA;
+	int pid;
 	int ret;
 
 	if (q == &dev->mt76.q_tx[MT_TXQ_PSD] && wcid && wcid->idx < 128)
@@ -163,11 +164,14 @@ int mt76x2_tx_prepare_skb(struct mt76_dev *mdev, void *txwi,
 
 	mt76x2_mac_write_txwi(dev, txwi, skb, wcid, sta);
 
+	pid = mt76_tx_status_skb_add(mdev, wcid, skb);
+	txwi->pktid = pid;
+
 	ret = mt76x2_insert_hdr_pad(skb);
 	if (ret < 0)
 		return ret;
 
-	if (info->flags & IEEE80211_TX_CTL_RATE_CTRL_PROBE)
+	if (pid && pid != MT_PACKET_ID_NO_ACK)
 		qsel = MT_QSEL_MGMT;
 
 	*tx_info = FIELD_PREP(MT_TXD_INFO_QSEL, qsel) |

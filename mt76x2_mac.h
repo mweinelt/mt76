@@ -35,15 +35,6 @@ struct mt76x2_tx_status {
 	u16 rate;
 } __packed __aligned(2);
 
-struct mt76x2_tx_info {
-	unsigned long jiffies;
-	u8 tries;
-
-	u8 wcid;
-	u8 pktid;
-	u8 retry;
-};
-
 struct mt76x2_rxwi {
 	__le32 rxinfo;
 
@@ -133,8 +124,6 @@ enum mt76x2_phy_bandwidth {
 #define MT_TXWI_ACK_CTL_NSEQ		BIT(1)
 #define MT_TXWI_ACK_CTL_BA_WINDOW	GENMASK(7, 2)
 
-#define MT_TXWI_PKTID_PROBE		BIT(7)
-
 struct mt76x2_txwi {
 	__le16 flags;
 	__le16 rate;
@@ -148,14 +137,6 @@ struct mt76x2_txwi {
 	u8 ctl2;
 	u8 pktid;
 } __packed __aligned(4);
-
-static inline struct mt76x2_tx_info *
-mt76x2_skb_tx_info(struct sk_buff *skb)
-{
-	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
-
-	return (void *) info->status.status_driver_data;
-}
 
 int mt76x2_mac_start(struct mt76x2_dev *dev);
 void mt76x2_mac_stop(struct mt76x2_dev *dev, bool force);
