@@ -509,7 +509,7 @@ mt76x2_send_tx_status(struct mt76x2_dev *dev, struct mt76x2_tx_status *stat,
 	if (stat->wcid < ARRAY_SIZE(dev->wcid))
 		wcid = rcu_dereference(dev->wcid[stat->wcid]);
 
-	if (wcid) {
+	if (wcid && wcid->sta) {
 		void *priv;
 
 		priv = msta = container_of(wcid, struct mt76x2_sta, wcid);
