@@ -184,7 +184,8 @@ mt76_tx_status_skb_add(struct mt76_dev *dev, struct mt76_wcid *wcid,
 	memset(cb, 0, sizeof(*cb));
 	wcid->packet_id = (wcid->packet_id + 1) & MT_PACKET_ID_MASK;
 	if (wcid->packet_id == MT_PACKET_ID_NO_ACK ||
-	    wcid->packet_id == MT_PACKET_ID_NO_SKB)
+	    wcid->packet_id == MT_PACKET_ID_NO_SKB ||
+	    wcid->packet_id == MT_PACKET_ID_MASK)
 		wcid->packet_id = MT_PACKET_ID_FIRST;
 
 	pid = wcid->packet_id;
