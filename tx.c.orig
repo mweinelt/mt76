@@ -169,8 +169,6 @@ mt76_tx_status_skb_add(struct mt76_dev *dev, struct mt76_wcid *wcid,
 	struct mt76_tx_cb *cb = mt76_tx_skb_cb(skb);
 	int pid;
 
-	WARN_ON(skb->prev || skb->next);
-
 	if (!wcid)
 		return MT_PACKET_ID_NO_ACK;
 
@@ -194,7 +192,6 @@ mt76_tx_status_skb_add(struct mt76_dev *dev, struct mt76_wcid *wcid,
 	cb->wcid = wcid->idx;
 	cb->pktid = pid;
 	cb->jiffies = jiffies;
-	cb->magic = 0x69;
 
 	__skb_queue_tail(&dev->status_list, skb);
 	spin_unlock_bh(&dev->status_list.lock);
@@ -247,14 +244,11 @@ EXPORT_SYMBOL_GPL(mt76_tx_status_check);
 void mt76_tx_complete_skb(struct mt76_dev *dev, struct sk_buff *skb)
 {
 	struct sk_buff_head list;
-	struct mt76_tx_cb *cb = mt76_tx_skb_cb(skb);
 
 	if (!skb->prev) {
 		ieee80211_free_txskb(dev->hw, skb);
 		return;
 	}
-
-	WARN_ON(cb->magic != 0x69);
 
 	mt76_tx_status_lock(dev, &list);
 	__mt76_tx_status_skb_done(dev, skb, MT_TX_CB_DMA_DONE, &list);

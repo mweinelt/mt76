@@ -256,6 +256,7 @@ struct mt76_tx_cb {
 	u8 wcid;
 	u8 pktid;
 	u8 flags;
+	u8 magic;
 };
 
 enum {
